@@ -1,5 +1,5 @@
 {
-    "name": "pkvas/world",
+    "name": "nnjeim/world",
     "description": "Laravel countries, states, cities, currencies, languages and IP geolocation",
     "keywords": [
         "laravel",
@@ -15,7 +15,7 @@
         "ip-location",
         "maxmind"
     ],
-    "homepage": "https://github.com/pkvas/world.git",
+    "homepage": "https://github.com/nnjeim/world.git",
     "license": "MIT",
     "type": "laravel-package",
     "authors": [
