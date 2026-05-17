@@ -15,7 +15,6 @@ trait IndexTransformer
     protected function transform(array $geoData): Collection
     {
         $countryModel = config('world.models.countries');
-        $stateModel = config('world.models.states');
         $cityModel = config('world.models.cities');
         $timezoneModel = config('world.models.timezones');
 
@@ -25,39 +24,12 @@ trait IndexTransformer
             $country = $countryModel::where('iso2', $geoData['country_code'])->first();
         }
 
-        // Find matching state
-        $state = null;
-        if ($country && (!empty($geoData['state_code']) || !empty($geoData['state_name']))) {
-            $query = $stateModel::where('country_id', $country->id);
-
-            // Check if state_code column exists (it's optional in World migrations)
-            $hasStateCode = config('world.migrations.states.optional_fields.state_code.required', false)
-                || \Schema::hasColumn(config('world.migrations.states.table_name', 'states'), 'state_code');
-
-            if ($hasStateCode && !empty($geoData['state_code'])) {
-                $query->where(function ($q) use ($geoData) {
-                    $q->where('state_code', $geoData['state_code'])
-                        ->orWhere('name', $geoData['state_name']);
-                });
-            } else {
-                // Fallback to name-only matching
-                $query->where('name', $geoData['state_name']);
-            }
-
-            $state = $query->first();
-        }
-
         // Find matching city
         $city = null;
         if (!empty($geoData['city_name']) && $country) {
-            $query = $cityModel::where('country_id', $country->id)
-                ->where('name', 'LIKE', $geoData['city_name'] . '%');
-
-            if ($state) {
-                $query->where('state_id', $state->id);
-            }
-
-            $city = $query->first();
+            $city = $cityModel::where('country_id', $country->id)
+                ->where('name', 'LIKE', $geoData['city_name'] . '%')
+                ->first();
         }
 
         // Find matching timezone
@@ -81,11 +53,7 @@ trait IndexTransformer
                 'region' => $country->region ?? null,
                 'subregion' => $country->subregion ?? null,
             ] : null,
-            'state' => $state ? array_filter([
-                'id' => $state->id,
-                'name' => $state->name,
-                'state_code' => $state->state_code ?? $geoData['state_code'] ?? null,
-            ], fn ($v) => $v !== null) : [
+            'state' => [
                 'name' => $geoData['state_name'] ?? null,
                 'state_code' => $geoData['state_code'] ?? null,
             ],

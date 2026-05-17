@@ -58,12 +58,10 @@ return [
 	/*
 	|--------------------------------------------------------------------------
 	| Enabled modules.
-	| The cities module depends on the states module.
 	|--------------------------------------------------------------------------
 	*/
 
 	'modules' => [
-		'states' => true,
 		'cities' => true,
 		'timezones' => true,
 		'currencies' => true,
@@ -137,33 +135,6 @@ return [
 				],
 			],
 		],
-		'states' => [
-			'table_name' => 'states',
-			'optional_fields' => [
-				'country_code' => [
-					'required' => true,
-					'type' => 'string',
-					'length' => 3,
-				],
-				'state_code' => [
-					'required' => false,
-					'type' => 'string',
-					'length' => 5,
-				],
-				'type' => [
-					'required' => false,
-					'type' => 'string',
-				],
-				'latitude' => [
-					'required' => false,
-					'type' => 'string',
-				],
-				'longitude' => [
-					'required' => false,
-					'type' => 'string',
-				],
-			],
-		],
 		'cities' => [
 			'table_name' => 'cities',
 			'optional_fields' => [
@@ -210,7 +181,6 @@ return [
 		'countries' => \Nnjeim\World\Models\Country::class,
 		'currencies' => \Nnjeim\World\Models\Currency::class,
 		'languages' => \Nnjeim\World\Models\Language::class,
-		'states' => \Nnjeim\World\Models\State::class,
 		'timezones' => \Nnjeim\World\Models\Timezone::class,
 	],
 

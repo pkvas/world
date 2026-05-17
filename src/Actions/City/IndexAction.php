@@ -27,14 +27,12 @@ class IndexAction extends BaseAction implements ActionInterface
 	protected array $availableFields = [
 		'id',
 		'name',
-		'state_id',
 		'country_id',
 		'country_code',
 	];
 
 	protected array $availableRelations = [
 		'country',
-		'state',
 	];
 
 	/**

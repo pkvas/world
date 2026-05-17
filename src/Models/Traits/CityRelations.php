@@ -12,11 +12,4 @@ trait CityRelations
 
 		return $this->belongsTo($countryClass);
 	}
-
-	public function state(): BelongsTo
-	{
-		$stateClass = config('world.models.states');
-
-		return $this->belongsTo($stateClass);
-	}
 }

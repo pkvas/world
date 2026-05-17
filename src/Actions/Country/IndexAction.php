@@ -35,7 +35,6 @@ class IndexAction extends BaseAction implements ActionInterface
 	];
 
 	protected array $availableRelations = [
-		'states',
 		'cities',
 		'timezones',
 		'currency',

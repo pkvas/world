@@ -17,10 +17,6 @@ Route::group([
 
 		Route::get('/countries', [Controllers\Country\CountryController::class, 'index'])->name('countries.index');
 
-		if (config('world.modules.states', true)) {
-			Route::get('/states', [Controllers\State\StateController::class, 'index'])->name('states.index');
-		}
-
 		if (config('world.modules.cities', true)) {
 			Route::get('/cities', [Controllers\City\CityController::class, 'index'])->name('cities.index');
 		}

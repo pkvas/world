@@ -23,13 +23,6 @@ trait IndexTransformer
 						['name' => trans('world::country.' . $country->iso2)]
 					);
 
-					if (in_array('states', $fields)) {
-						$return = array_merge(
-							$return,
-							['states' => $country->states->map(fn ($state) => $state->only('id', 'name'))]
-						);
-					}
-
 					if (in_array('cities', $fields)) {
 						$return = array_merge(
 							$return,

@@ -42,7 +42,6 @@ class RefreshWorldData extends Command
 		// drop the world tables
 		$worldTables = [
 			'world.migrations.countries.table_name',
-			'world.migrations.states.table_name',
 			'world.migrations.cities.table_name',
 			'world.migrations.timezones.table_name',
 			'world.migrations.currencies.table_name',

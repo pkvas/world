@@ -24,7 +24,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $emoji
  * @property string|null $emojiU
  *
- * @property-read Model[]|State[] $states
  * @property-read Model[]|City[] $cities
  * @property-read Model[]|Timezone[] $timezones
  * @property-read Model|Currency|null $currency

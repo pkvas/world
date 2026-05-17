@@ -2,7 +2,6 @@
 
 namespace Nnjeim\World\Actions;
 
-use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -20,10 +19,6 @@ class SeedAction extends Seeder
 	];
 
 	private array $modules = [
-		'states' => [
-			'data' => [],
-			'enabled' => false,
-		],
 		'cities' => [
 			'data' => [],
 			'enabled' => false,
@@ -177,9 +172,9 @@ class SeedAction extends Seeder
 
 				$countryClass = config('world.models.countries');
 				$country = $countryClass::create(Arr::only($countryArray, $countryFields));
-				// states and cities
-				if ($this->isModuleEnabled('states')) {
-					$this->seedStates($country, $countryArray);
+				// cities
+				if ($this->isModuleEnabled('cities')) {
+					$this->seedCities($country, $countryArray);
 				}
 				// timezones
 				if ($this->isModuleEnabled('timezones')) {
@@ -259,100 +254,40 @@ class SeedAction extends Seeder
 	/**
 	 * @param Models\Country $country
 	 * @param array $countryArray
-	 *
-	 * @throws Exception
 	 */
-	private function seedStates(Models\Country $country, array $countryArray): void
+	private function seedCities(Models\Country $country, array $countryArray): void
 	{
-		// country states and cities
-		$countryStates = Arr::where($this->modules['states']['data'], fn($state) => $state['country_id'] === $countryArray['id']);
-		// state schema
-		$stateFields = $this->schema->getColumnListing(config('world.migrations.states.table_name'));
+		$countryCities = Arr::where($this->modules['cities']['data'], fn($city) => $city['country_id'] === $countryArray['id']);
 
-		$this->forgetFields($stateFields, ['id', 'country_id']);
-
-		$bulk_states = [];
-
-		foreach ($countryStates as $stateArray) {
-
-			$stateArray = array_map(fn($field) => gettype($field) === 'string' ? trim($field) : $field, $stateArray);
-
-			$bulk_states[] = Arr::add(
-				Arr::only($stateArray, $stateFields),
-				'country_id',
-				$country->id
-			);
+		if (empty($countryCities)) {
+			return;
 		}
+
+		// city schema
+		$cityFields = $this->schema->getColumnListing(config('world.migrations.cities.table_name'));
+
+		$this->forgetFields($cityFields, ['id', 'country_id']);
 
 		DB::beginTransaction();
 
 		try {
-			$last_state_id_before_insert = $this->findLastStateIdBeforeInsert();
+			//using array_chunk to prevent mySQL too many placeholders error
+			foreach (array_chunk($countryCities, 500) as $cityChunks) {
+				$cities_bulk = [];
+				foreach ($cityChunks as $cityArray) {
+					$cityArray = array_map(fn($field) => gettype($field) === 'string' ? trim($field) : $field, $cityArray);
 
-			$stateClass = config('world.models.states');
-			$stateClass::query()
-				->insert($bulk_states);
+					$city = Arr::only($cityArray, $cityFields);
+					$city = Arr::add($city, 'country_id', $country->id);
 
-			$bulk_states = $this->addStateIdAfterInsert($bulk_states, $last_state_id_before_insert);
+					$cities_bulk[] = $city;
+				}
 
-			//state cities
-			if ($this->isModuleEnabled('cities')) {
-				$stateNames = array_column($bulk_states, 'name');
-
-				$stateCities = Arr::where(
-					$this->modules['cities']['data'],
-					fn($city) => $city['country_id'] === $countryArray['id'] && in_array($city['state_name'], $stateNames, true)
-				);
-
-				$this->seedCities($country, $bulk_states, $stateCities);
+				$cityClass = config('world.models.cities');
+				$cityClass::query()->insert($cities_bulk);
 			}
-		} catch (Exception $exception) {
-			throw $exception;
 		} finally {
 			DB::commit();
-		}
-	}
-
-	/**
-	 * @param Models\Country $country
-	 * @param array $states
-	 * @param array $cities
-	 */
-	private function seedCities(Models\Country $country, array $states, array $cities): void
-	{
-		// city schema
-		$cityFields = $this->schema->getColumnListing(config('world.migrations.cities.table_name'));
-
-		$this->forgetFields($cityFields, ['id', 'country_id', 'state_id']);
-
-		//using array_chunk to prevent mySQL too many placeholders error
-		foreach (array_chunk($cities, 500) as $cityChunks) {
-			$cities_bulk = [];
-			foreach ($cityChunks as $cityArray) {
-				$cityArray = array_map(fn($field) => gettype($field) === 'string' ? trim($field) : $field, $cityArray);
-
-				$city = Arr::only($cityArray, $cityFields);
-
-				$state = Arr::first($states, fn($state) => $state['name'] === $cityArray['state_name']);
-
-				$city = Arr::add(
-					$city,
-					'state_id',
-					$state['id']
-				);
-
-				$city = Arr::add(
-					$city,
-					'country_id',
-					$country->id
-				);
-
-				$cities_bulk[] = $city;
-			}
-
-			$cityClass = config('world.models.cities');
-			$cityClass::query()
-				->insert($cities_bulk);
 		}
 	}
 
@@ -426,27 +361,4 @@ class SeedAction extends Seeder
 		}
 	}
 
-	private function findLastStateIdBeforeInsert()
-	{
-		$stateClass = config('world.models.states');
-		$state = $stateClass::query()->orderByDesc('id')->first();
-
-		$last_state_id_before_insert = 0;
-
-		if (!is_null($state)) {
-			$last_state_id_before_insert = $state->id;
-		}
-
-		return $last_state_id_before_insert;
-	}
-
-	private function addStateIdAfterInsert(array $bulk_states, $last_state_id_before_insert)
-	{
-		$count = count($bulk_states);
-
-		for ($i = 1; $i <= $count; $i++) {
-			$bulk_states[$i - 1]['id'] = $last_state_id_before_insert + $i;
-		}
-		return $bulk_states;
-	}
 }

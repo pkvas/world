@@ -6,7 +6,6 @@ use Exception;
 
 /**
  * @method static \Nnjeim\World\Actions\BaseAction countries(array $args)
- * @method static \Nnjeim\World\Actions\BaseAction states(array $args)
  * @method static \Nnjeim\World\Actions\BaseAction cities(array $args)
  * @method static \Nnjeim\World\Actions\BaseAction timezones(array $args)
  * @method static \Nnjeim\World\Actions\BaseAction currencies(array $args)
@@ -19,10 +18,6 @@ class WorldHelper
 	private array $availableActions = [
 		'countries' => [
 			'actionBasePath' => 'Nnjeim\\World\\Actions\\Country',
-			'action' => 'index',
-		],
-		'states' => [
-			'actionBasePath' => 'Nnjeim\\World\\Actions\\State',
 			'action' => 'index',
 		],
 		'cities' => [

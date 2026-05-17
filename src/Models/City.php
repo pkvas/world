@@ -12,15 +12,12 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property int $id
  * @property int $country_id
- * @property int $state_id
  * @property string $name
  * @property string $country_code
- * @property string|null $state_code
  * @property string|null $latitude
  * @property string|null $longitude
  *
  * @property-read Model|Country|null $country
- * @property-read Model|State|null $state
  */
 class City extends Model
 {
@@ -35,7 +32,6 @@ class City extends Model
     {
         return [
             'country_id' => 'int',
-            'state_id' => 'int',
         ];
     }
 

@@ -25,13 +25,6 @@ trait IndexTransformer
 						);
 					}
 
-					if (in_array('state', $fields)) {
-						$return = array_merge(
-							$return,
-							['state' => $city->state->only('id', 'name')]
-						);
-					}
-
 					return $return;
 				}
 			);

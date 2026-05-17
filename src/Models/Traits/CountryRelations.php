@@ -7,13 +7,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 trait CountryRelations
 {
-	public function states(): HasMany
-	{
-		$stateClass = config('world.models.states');
-
-		return $this->hasMany($stateClass, 'country_id', 'id');
-	}
-
 	public function cities(): HasMany
 	{
 		$cityClass = config('world.models.cities');

@@ -14,7 +14,6 @@ return new class extends BaseMigration
         Schema::create(config('world.migrations.cities.table_name'), function (Blueprint $table) {
             $table->id();
             $table->foreignId('country_id');
-            $table->foreignId('state_id')->nullable();
             $table->string('name');
 
             foreach (config('world.migrations.cities.optional_fields') as $field => $value) {
