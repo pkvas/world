@@ -51,6 +51,11 @@ class Currency extends Model
         ];
     }
 
+    public function newQuery()
+    {
+        return parent::newQuery()->whereIn('code', config('world.currencies.enabled', []));
+    }
+
 	/**
 	 * Get the table associated with the model.
 	 *
